@@ -35,7 +35,23 @@ function createTapeMaterial(frontTexture, sideTexture, backTexture, spineTexture
 //-=========================Tape=========================
 
 class Tape {
+    //--------------audio----------------
     static bookAudio = new Audio('./src/book.ogg');
+    static clickedAudio = new Audio('./src/display.ogg');
+    static defaultVolume = 0.1;
+
+    static playAudio(audio, volume = Tape.defaultVolume) {
+        if (audio.paused) {
+            audio.volume = volume;
+            audio.play();
+        }else{
+            audio.currentTime = 0.05;
+        }
+    }
+
+
+    //--------------tween----------------
+
     tweens = [];
     tapeManager = null;
     instance = null;
@@ -146,7 +162,6 @@ class Tape {
             }else{
                 Tape.bookAudio.currentTime = 0.05;
             }
-            
         }
         this.targetState = 'inQueue';
     }
@@ -191,11 +206,15 @@ class Tape {
         positionTween.start();
 
         this.tweens.push(rotationTween, positionTween);
-
-
     }
 
     display() {
+        if (this.state === 'clicked') {
+            //播放 Tape.clickedAudio 音频
+            Tape.playAudio(Tape.clickedAudio);
+            Tape.playAudio(Tape.bookAudio);
+        }
+
         this.state = 'display';
         this.ClearTweens();
 
@@ -238,6 +257,9 @@ class Tape {
 
         positionTween.start();
         this.tweens.push(positionTween);
+
+        //播放 Tape.clickedAudio 音频
+        Tape.playAudio(Tape.clickedAudio);
     }
 
     RotationByAxis(axis, angle, originRotation = { x: 0, y: 0, z: 0 }) {
@@ -386,10 +408,6 @@ class TapeManager {
         }
 
         this.tapes[this.currentIndex].SetState('clicked'); 
-
-        //播放 src/display.ogg 音频
-        const audio = new Audio('./src/display.ogg');
-        audio.play();
     }
 
     getPositionByVirtualIndex(virtualIndex, length) {

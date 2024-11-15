@@ -72,7 +72,7 @@ function initLight(scene) {
 
 
     // 环境光
-    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.12);
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.02);
     scene.add(ambientLight);
 
     const bulbLight = createBulbLight(0xffbb99, 20, 100, 1.5);
@@ -83,8 +83,8 @@ function initLight(scene) {
     bulbLight2.position.set(-2, 0.7, 3);
     scene.add(bulbLight2);
 
-    const bulbLight3 = createBulbLight(0xffbb99, 1, 5, 3);
-    bulbLight3.position.set(0, 0, 8);
+    const bulbLight3 = createBulbLight(0xffbb99, 5, 8, 2);
+    bulbLight3.position.set(0, 0, 9);
     scene.add(bulbLight3);
 
 }
@@ -147,7 +147,7 @@ function initPostProcessing(scene, camera, renderer) {
     //5s后移除glitchPass
     setTimeout(() => {
         composer.removePass(glitchPass);
-        
+
 
         const filmPass = new FilmPass(0.5)
         composer.addPass(filmPass);
@@ -163,6 +163,9 @@ let isShowingLogo = false;
 const showLogoTweenGroup = new Group();
 function showLogo() {
     isShowingLogo = true;
+    // 将 scene-container 的 index 设置为 1，使得 logo 在最上层
+    sceneContainer.style.zIndex = 99;
+
     const logoTexture = new THREE.TextureLoader().load('src/icon.png');
     const logoMaterial = new THREE.MeshBasicMaterial({ map: logoTexture });
     const logoGeometry = new THREE.PlaneGeometry(1, 1);
@@ -185,11 +188,11 @@ function showLogo() {
     camera.position.z = 20;
 
     // logo 从远端旋转飞到屏幕中央
-    const logoTween = new Tween({z:21}).to({z:16}, 2000).easing(Easing.Quadratic.Out).onUpdate((object) => {
+    const logoTween = new Tween({ z: 21 }).to({ z: 16 }, 2000).easing(Easing.Quadratic.Out).onUpdate((object) => {
         logo.position.z = object.z;
     }).delay(1000).start();
 
-    const logoRotateTween = new Tween({ x: 0, y: -3, z: 0 }).to({ x: 0, y: 0, z:0 }, 2000).easing(Easing.Quadratic.Out).onUpdate((object) => {
+    const logoRotateTween = new Tween({ x: 0, y: -3, z: 0 }).to({ x: 0, y: 0, z: 0 }, 2000).easing(Easing.Quadratic.Out).onUpdate((object) => {
         logo.rotation.x = object.x;
         logo.rotation.y = object.y;
         logo.rotation.z = object.z;
@@ -206,6 +209,7 @@ function showLogo() {
         scene.remove(ambientLight);
         camera.position.z = 10;
         isShowingLogo = false;
+        sceneContainer.style.zIndex = -1;
     }, 3500);
 }
 
@@ -337,7 +341,14 @@ document.querySelectorAll(".button-svg").forEach((btn) => {
     const svgContainer = document.createElement('div');
     svgContainer.style.height = '10vh';
 
-    svgContainer.innerHTML = `<svg fill="#000000" height="100%" width="100%" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+    svgContainer.innerHTML = `
+<svg height="100%" width="100%" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" fill="#000000">
+    <g fill="white">
+        <path d="m388.07016,240.917l-157.66878,-234.666c-2.68014,-4.011 -6.32108,-6.251 -10.13401,-6.251l-71.66708,0c-5.79096,0 -11.03702,5.184 -13.24416,13.163c-2.22192,7.979 -0.98901,17.152 3.11015,23.253l147.53477,219.584l-147.53477,219.584c-4.09916,6.101 -5.33206,15.275 -3.11015,23.253c2.20714,7.979 7.4532,13.163 13.24416,13.163l71.66775,0c3.81294,0 7.4532,-2.24 10.13401,-6.251l157.66878,-234.667c5.6035,-8.341 5.6035,-21.823 -0.00067,-30.165z"/>
+    </g>
+</svg>`;
+
+{/* <svg fill="#000000" height="100%" width="100%" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 	 viewBox="0 0 512 512" xml:space="preserve">
         <g fill="white">
             		<path d="M441.749,240.917L207.082,6.251C203.093,2.24,197.674,0,191.999,0H85.333c-8.619,0-16.427,5.184-19.712,13.163
@@ -345,7 +356,7 @@ document.querySelectorAll(".button-svg").forEach((btn) => {
 			C68.906,506.816,76.714,512,85.333,512H192c5.675,0,11.093-2.24,15.083-6.251L441.75,271.082
 			C450.09,262.741,450.09,249.259,441.749,240.917z"/>
         </g>
-</svg>`;
+</svg> */}
     btn.appendChild(svgContainer);
 
     btn.addEventListener('mouseover', (e) => {
